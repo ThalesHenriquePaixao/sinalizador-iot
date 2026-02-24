@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSE-I | Prototipagem SENAI</title>
+    <style>
+        :root {
+            --primary-blue: #0A2540;
+            --health-red: #E63946;
+            --tech-cyan: #00B4D8;
+            --bg-light: #F8F9FA;
+            --text-dark: #2B2D42;
+            --senai-blue: #004B8D;
+        }
+
+        /* Habilita o comportamento de "travar" o scroll como em um slide */
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+            line-height: 1.6;
+        }
+
+        /* Transformando os blocos em telas inteiras (Slides) */
+        .slide {
+            min-height: 100vh;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-sizing: border-box;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        header {
+            background-color: var(--senai-blue);
+            color: white;
+            text-align: center;
+            border-bottom: 5px solid var(--health-red);
+            align-items: center;
+        }
+
+        .senai-tag {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+
+        header p.subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            font-weight: 300;
+            color: #E0E0E0;
+        }
+
+        .team {
+            background: rgba(0, 0, 0, 0.2);
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        section {
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            padding-left: 2rem;
+            padding-right: 2rem;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2.2rem;
+            color: var(--senai-blue);
+            margin-bottom: 3rem;
+            border-bottom: 3px solid var(--tech-cyan);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-top: 5px solid var(--senai-blue);
+            transition: transform 0.3s;
+        }
+
+        .card:hover { transform: translateY(-5px); }
+        .card.red-border { border-top: 5px solid var(--health-red); }
+        
+        .card h3 { color: var(--senai-blue); margin-top: 0; }
+        .card.red-border h3 { color: var(--health-red); }
+
+        /* Estilos do Simulador de LED */
+        .simulator-box {
+            background: #1E1E1E;
+            padding: 3rem 2rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .led-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        .led {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #333;
+            box-shadow: inset 0 0 10px #000;
+            transition: background-color 0.05s;
+        }
+
+        .led.active {
+            background-color: #ff0000;
+            box-shadow: 0 0 20px #ff0000, inset 0 0 10px #ffaaaa;
+        }
+
+        .btn-simular {
+            background-color: var(--tech-cyan);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .btn-simular:hover { background-color: #0096b4; }
+
+        .hardware-list { list-style: none; padding: 0; }
+        .hardware-list li { margin-bottom: 1rem; padding-left: 2rem; position: relative; }
+        .hardware-list li::before { content: '⚙️'; position: absolute; left: 0; top: 2px; }
+
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            padding: 1.5rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .code-comment { color: #6A9955; }
+        .code-keyword { color: #569CD6; }
+        .code-number { color: #B5CEA8; }
+
+        /* Estilos da Seção de Referências */
+        .references {
+            background-color: white;
+            padding: 3rem;
+            border-radius: 10px;
+            border-top: 5px solid var(--senai-blue);
+        }
+        
+        .references h2 { margin-bottom: 1.5rem; }
+        .references ul { padding-left: 20px; font-size: 0.95rem; word-break: break-all; }
+        .references li { margin-bottom: 1rem; }
+
+        /* ========================================= */
+        /* SETAS FLUTUANTES COM TRANSPARÊNCIA (NOVO) */
+        /* ========================================= */
+        .nav-arrows {
+            position: fixed;
+            right: 15px;
+            bottom: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .nav-arrow {
+            /* Cor de fundo azul escura com 40% de opacidade (transparente) */
+            background-color: rgba(10, 37, 64, 0.4); 
+            /* Filtro que embaca o que está atrás do botão (efeito vidro moderno) */
+            backdrop-filter: blur(4px); 
+            -webkit-backdrop-filter: blur(4px); 
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            font-size: 18px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-arrow:hover {
+            /* Fica mais escuro e sólido quando passa o mouse */
+            background-color: rgba(0, 75, 141, 0.9); 
+            transform: scale(1.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="slide">
+        <div class="senai-tag">SENAI - Desenvolvimento de Sistemas</div>
+        <h1>Módulo de Sinalização MSE-I</h1>
+        <p class="subtitle">Arquitetura de Hardware e Software para Cidades Inteligentes e Saúde Pública</p>
+        <div class="team">
+            <strong>Equipe de Engenharia de Prototipagem:</strong><br>
+            Thales Henrique Paixão Silva Santos | Vinicius Santana Nascimento
+        </div>
+    </header>
+
+    <section class="slide" style="text-align: center;">
+        <div style="width: 100%;">
+            <h2>Visão do Produto Comercial</h2>
+            <p style="max-width: 800px; margin: 0 auto 3rem auto; font-size: 1.1rem;">
+                Apresentamos duas aplicações corporativas baseadas no mesmo núcleo de processamento (ESP32), desenvolvidas para fechar lacunas críticas de tempo de resposta na gestão pública.
+            </p>
+            
+            <div class="grid-2" style="text-align: left;">
+                <div class="card">
+                    <h3>🚦 SIRE (Mobilidade Urbana)</h3>
+                    <p><strong>Sistema Inteligente de Rota de Emergência</strong></p>
+                    <p>Módulos de varredura visual instalados em cruzamentos. Cria um corredor visual dinâmico que antecipa a rota do SAMU, avisando motoristas com eficiência tática onde e quando abrir caminho.</p>
+                </div>
+                <div class="card red-border">
+                    <h3>🏥 SRR (Saúde Pública)</h3>
+                    <p><strong>Sinalizador de Resposta Rápida Hospitalar</strong></p>
+                    <p>Hardware para UTIs. Projetado para integração via Webhooks com <strong>dashboards de monitoramento de pacientes</strong>. Ao detectar queda nos sinais vitais, aciona imediatamente o alerta visual no leito correto, eliminando a fadiga de alarmes sonoros da equipe médica.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide" style="background-color: white;">
+        <div style="width: 100%;">
+            <h2>Simulação Interativa da Lógica</h2>
+            <p style="text-align: center; margin-bottom: 2rem;">Validando o laço de repetição <code>for</code> e o <code>delay(30)</code> escritos em C++.</p>
+            
+            <div class="simulator-box">
+                <div class="led-container" id="led-board">
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                    <div class="led"></div>
+                </div>
+                <button class="btn-simular" id="btn-toggle" onclick="toggleSimulation()">▶ Iniciar Varredura de 30ms</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide">
+        <div style="width: 100%;">
+            <h2>Fundação Técnica: Hardware & Código</h2>
+            <div class="grid-2">
+                <div>
+                    <ul class="hardware-list">
+                        <li><strong>ESP32 (Processamento IoT):</strong> Microcontrolador dual-core com conectividade embarcada. Permite que a prefeitura atualize os padrões de luz remotamente via Wi-Fi.</li>
+                        <li><strong>LEDs (Atuadores de Alta Performance):</strong> Acendimento instantâneo, superando as antigas lâmpadas estroboscópicas.</li>
+                        <li><strong>Resistores (Confiabilidade):</strong> Protegem os GPIOs do ESP32 contra picos de corrente, garantindo operação contínua sem queima da placa.</li>
+                    </ul>
+                </div>
+                <div class="code-block">
+<pre>
+<span class="code-comment">// Lógica Otimizada - C++</span>
+<span class="code-keyword">const int</span> leds[] = {<span class="code-number">14</span>, <span class="code-number">27</span>, <span class="code-number">26</span>, <span class="code-number">25</span>, <span class="code-number">33</span>, <span class="code-number">32</span>, <span class="code-number">12</span>, <span class="code-number">13</span>};
+<span class="code-keyword">const int</span> espera = <span class="code-number">30</span>;
+
+<span class="code-keyword">void</span> loop() {
+  <span class="code-comment">// Varredura progressiva </span>
+  <span class="code-keyword">for</span> (<span class="code-keyword">int</span> i = <span class="code-number">0</span>; i < <span class="code-number">8</span>; i++) {
+    digitalWrite(leds[i], HIGH);
+    delay(espera);
+    digitalWrite(leds[i], LOW);
+    delay(espera);
+  }
+}
+</pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="slide" style="justify-content: flex-start; padding-top: 5vh;">
+        <div class="references" style="width: 100%;">
+            <h2>Referências Bibliográficas</h2>
+            <ul>
+                <li>PEREIRA, Jonathas de Alencar. <em>Documentação e Material de Apoio: ESP32</em>. Disponível em: &lt;https://jonathas.pro/esp32&gt;. Acesso em: 23 fev. 2026.</li>
+                <li>WIKIPÉDIA. <em>ESP32</em>. Disponível em: &lt;https://pt.wikipedia.org/wiki/ESP32&gt;. Acesso em: 23 fev. 2026.</li>
+                <li>BRASIL ESCOLA. <em>O que é LED?</em>. Disponível em: &lt;https://brasilescola.uol.com.br/o-que-e/fisica/o-que-e-led.htm&gt;. Acesso em: 23 fev. 2026.</li>
+                <li>TODA MATÉRIA. <em>Resistores</em>. Disponível em: &lt;https://www.todamateria.com.br/resistores/&gt;. Acesso em: 23 fev. 2026.</li>
+            </ul>
+        </div>
+    </section>
+
+    <div class="nav-arrows">
+        <button class="nav-arrow" onclick="prevSlide()" title="Slide anterior">▲</button>
+        <button class="nav-arrow" onclick="nextSlide()" title="Próximo slide">▼</button>
+    </div>
+
+    <script>
+        // LÓGICA DE NAVEGAÇÃO DOS SLIDES
+        const slides = document.querySelectorAll('.slide');
+        let currentSlideIndex = 0;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    currentSlideIndex = Array.from(slides).indexOf(entry.target);
+                }
+            });
+        }, { threshold: 0.5 }); 
+
+        slides.forEach(slide => observer.observe(slide));
+
+        function nextSlide() {
+            if (currentSlideIndex < slides.length - 1) {
+                currentSlideIndex++;
+                slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlideIndex > 0) {
+                currentSlideIndex--;
+                slides[currentSlideIndex].scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // LÓGICA DO SIMULADOR DE LEDS
+        const leds = document.querySelectorAll('.led');
+        let currentLed = 0;
+        let direction = 1;
+        let intervalId = null;
+        let isRunning = false;
+
+        function runScan() {
+            leds.forEach(led => led.classList.remove('active'));
+            leds[currentLed].classList.add('active');
+            currentLed += direction;
+
+            if (currentLed >= leds.length) {
+                currentLed = leds.length - 2;
+                direction = -1;
+            } else if (currentLed < 0) {
+                currentLed = 1;
+                direction = 1;
+            }
+        }
+
+        function toggleSimulation() {
+            const btn = document.getElementById('btn-toggle');
+            if (isRunning) {
+                clearInterval(intervalId);
+                leds.forEach(led => led.classList.remove('active'));
+                btn.innerText = '▶ Iniciar Varredura de 30ms';
+                btn.style.backgroundColor = 'var(--tech-cyan)';
+                currentLed = 0;
+                direction = 1;
+            } else {
+                intervalId = setInterval(runScan, 60); 
+                btn.innerText = '⏹ Parar Simulação';
+                btn.style.backgroundColor = 'var(--health-red)';
+            }
+            isRunning = !isRunning;
+        }
+    </script>
+</body>
+</html>
